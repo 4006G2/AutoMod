@@ -26,3 +26,11 @@ class GameBase(abc.ABC):
         :return: the information returned by the API
         """
         pass
+
+    @abc.abstractmethod
+    @property
+    def name(self) -> str:
+        """
+        :return: the name for the game/api
+        """
+        pass
