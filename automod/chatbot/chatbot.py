@@ -2,17 +2,17 @@ __author__ = "Benedict Thompson"
 __version__ = "0.1p"
 
 import re
-from typing import Union
+from typing import Union, List, Pattern
 
 import automod.chat as chat
 import automod.game_api as game
 
 
 class ChatBot(object):
-    name = "AutoMod"
-    greetings = ["Hi", "Hello", "Hey"]
-    pattern_greeting = "({0})(?:,? {1})".format('|'.join(greetings), name)
-    expr_greeting = re.compile(pattern_greeting)
+    name: str = "AutoMod"
+    greetings: List[str] = ["Hi", "Hello", "Hey"]
+    regex_greeting: str = "({0})(?:,? ({1}))?".format('|'.join(greetings), name)
+    pattern_greeting: Pattern = re.compile(regex_greeting)
 
     def __init__(self) -> None:
         super().__init__()
@@ -41,7 +41,7 @@ class ChatBot(object):
             self._server.send_message_to(user_id, reply)
 
     def parse_message(self, message: str) -> Union[str, None]:
-        match = self.expr_greeting.search(message)
+        match = self.pattern_greeting.match(message)
         if match is not None:
             return "Hi"
 
