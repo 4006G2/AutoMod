@@ -11,7 +11,7 @@ import automod.game_api as game
 class ChatBot(object):
     name: str = "AutoMod"
     greetings: List[str] = ["Hi", "Hello", "Hey"]
-    regex_greeting: str = "({0})(?:,? ({1}))?".format('|'.join(greetings), name)
+    regex_greeting: str = "({0})(?:,? {1})?".format('|'.join(greetings), name)
     pattern_greeting: Pattern = re.compile(regex_greeting)
 
     def __init__(self) -> None:
