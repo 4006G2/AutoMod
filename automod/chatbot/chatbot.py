@@ -36,13 +36,36 @@ class ChatBot(object):
         self._game = api
 
     def on_message(self, user_id: str, message: str):
-        reply = self.parse_message(message)
-        if reply is not None and self.server is not None:
-            self._server.send_message_to(user_id, reply)
+        reply = None
+        if message.startswith('!'):
+            reply = self.parse_command(message)
+        else:
+            reply = self.parse_message(message)
+        if reply is not None:
+            self.server.send_message_to(user_id, reply)
 
     def parse_message(self, message: str) -> Union[str, None]:
         match = self.pattern_greeting.match(message)
         if match is not None:
             return "Hi"
 
+        return None
+
+    def parse_command(self, message: str) -> Union[str, None]:
+        regex_command = r"!(\w+)((?: \w+:\w+)+)?"
+        pattern_command = re.compile(regex_command)
+
+        match = pattern_command.match(message)
+        if match is not None:
+            command = match.group(1)
+            params = match.group(2)
+            if params is not None:
+                params = params.split()
+                kwargs = {}
+                for p in params:
+                    p = p.split(':')
+                    kwargs[p[0]] = p[1]
+                return self.game_api.send(command, **kwargs)
+            else:
+                return self.game_api.send(command)
         return None
