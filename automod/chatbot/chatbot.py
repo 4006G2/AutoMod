@@ -76,3 +76,6 @@ class ChatBot(object):
             else:
                 return self.game_api.send(command)
         return None
+
+    def get_behaviour(self, message: str) -> MessageTone:
+        pass
