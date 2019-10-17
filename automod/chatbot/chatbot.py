@@ -2,10 +2,17 @@ __author__ = "Benedict Thompson"
 __version__ = "0.1p"
 
 import re
+from enum import Enum
 from typing import Union, List, Pattern
 
 import automod.chat as chat
 import automod.game_api as game
+
+
+class MessageTone(Enum):
+    POSITIVE = 1
+    NEUTRAL = 0
+    NEGATIVE = -1
 
 
 class ChatBot(object):
