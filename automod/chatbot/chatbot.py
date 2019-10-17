@@ -28,6 +28,7 @@ class ChatBot(object):
     greetings: List[str] = ["Hi", "Hello", "Hey"]
     regex_greeting: str = "({0})(?:,? {1})?".format('|'.join(greetings), name)
     pattern_greeting: Pattern = re.compile(regex_greeting)
+    events = {}  # this variable should in a format of dict{str(event name):str(event time)}
 
     def __init__(self) -> None:
         super().__init__()
@@ -146,3 +147,22 @@ class ChatBot(object):
                 self._watch_list[user][1] = WarningLevel.BAN
                 return WarningLevel.BAN
         return None
+
+    # this function should read a text file containing the stream events and the time of it happening
+    def register_events(self):
+        """
+        :rtype: None
+        """
+        file_name = input("Enter file name: ")
+        file = open(file_name, "r")
+        # add data into the global variable - event
+        pass  # TODO
+        file.close()
+
+    # this function should check the system time and alert chat when an event is happening in
+    # 1 hour, 30 mins, 15 mins and 5 mins
+    def event_alert(self):
+        """
+        :rtype: None
+        """
+        pass  # TODO
