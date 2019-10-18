@@ -151,7 +151,7 @@ class ChatBot(object):
         """
         file_name = input("Enter file name: ")
         file = open(file_name, "r")
-        # add data into the global variable - event
+        # add data into the global variable - event (look up python dictionary and how to read file)
         pass  # TODO
         file.close()
 
@@ -161,4 +161,5 @@ class ChatBot(object):
         """
         :rtype: None
         """
+        # check current time, then compare it with the event time to decide whether or not a alert is needed
         pass  # TODO
