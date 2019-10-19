@@ -70,7 +70,7 @@ class ChatBot(object):
                 return self.game_api.send(command)
         return None
 
-    # this function should detect if there the user gives no input, then provide some talking points
+    # this function should detect if the user gives no input, then print out some talking points
     def raise_discussion(self):
         """
         -Use exception handling for catching any function that receives input from the user
