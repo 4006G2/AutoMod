@@ -69,3 +69,12 @@ class ChatBot(object):
             else:
                 return self.game_api.send(command)
         return None
+
+    # this function should detect if there the user gives no input, then provide some talking points
+    def raise_discussion(self):
+        """
+        -Use exception handling for catching any function that receives input from the user
+        -if it does not receive print: some talking points or future events
+
+        """
+        pass
