@@ -174,7 +174,7 @@ class ChatBot(object):
             # Here should check if the main functions with input
             message = msg
 
-            if message == "":
+            if message == ""
                 time.sleep(rand_time)
                 print(self.talkingPoints[rand_tk - 1])
             elif message == "/quit":
@@ -188,4 +188,4 @@ class ChatBot(object):
                 time.sleep(rand_time + 8)
                 # donations
                 print("The user '" + str(self.users[rand_user - 1]) + "' has donated " + str(round(rand_donation, 2)) + " £")
-        return None
+         return None
