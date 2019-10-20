@@ -11,6 +11,11 @@ class ChatBotTests(unittest.TestCase):
         super().__init__(methodName)
         self.chat_bot = ChatBot()
 
+    def test_func(self):
+        message = input("")
+        m = self.chat_bot.raise_discussion()
+        self.assertTrue(m)
+        self.assertFalse(m)
 
 if __name__ == '__main__':
     unittest.main()
