@@ -12,7 +12,7 @@ NEGATIVE = MessageTone.NEGATIVE
 
 
 class ChatBotTests(unittest.TestCase):
-    def __init__(self, methodName: str = "runTest") -> None:
+    def __init__(self, methodName="runTest"):
         super().__init__(methodName)
         self.chat_bot = ChatBot()
 
