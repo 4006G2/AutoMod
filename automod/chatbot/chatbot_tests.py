@@ -2,7 +2,6 @@ __author__ = "Benedict Thompson"
 __version__ = "0.1p"
 
 import unittest
-from typing import Dict
 
 from .chatbot import ChatBot, MessageTone
 
@@ -17,7 +16,7 @@ class ChatBotTests(unittest.TestCase):
         self.chat_bot = ChatBot()
 
     def test_user_language(self):
-        test_data: Dict[str, MessageTone] = {"Hi": NEUTRAL, "very bad": NEGATIVE, "very good": POSITIVE}
+        test_data = {"Hi": NEUTRAL, "very bad": NEGATIVE, "very good": POSITIVE}
 
         for message, expected in test_data.items():
             with self.subTest(message=message):
