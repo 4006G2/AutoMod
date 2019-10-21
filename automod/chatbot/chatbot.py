@@ -2,40 +2,36 @@ __author__ = "Benedict Thompson"
 __version__ = "0.1p"
 
 import re
-from typing import Union, List, Pattern
-
-import automod.chat as chat
-import automod.game_api as game
 
 
 class ChatBot(object):
-    name: str = "AutoMod"
-    greetings: List[str] = ["Hi", "Hello", "Hey"]
-    regex_greeting: str = "({0})(?:,? {1})?".format('|'.join(greetings), name)
-    pattern_greeting: Pattern = re.compile(regex_greeting)
+    name = "AutoMod"
+    greetings = ["Hi", "Hello", "Hey"]
+    regex_greeting = "({0})(?:,? {1})?".format('|'.join(greetings), name)
+    pattern_greeting = re.compile(regex_greeting)
 
-    def __init__(self) -> None:
+    def __init__(self):
         super().__init__()
-        self._server: Union[chat.ChatBase, None] = None
-        self._game: Union[game.GameBase, None] = None
+        self._server = None
+        self._game = None
 
     @property
-    def server(self) -> chat.ChatBase:
+    def server(self):
         return self._server
 
     @server.setter
-    def server(self, srvr: chat.ChatBase):
-        self._server = srvr
+    def server(self, value):
+        self._server = value
 
     @property
-    def game_api(self) -> game.GameBase:
+    def game_api(self):
         return self._game
 
     @game_api.setter
-    def game_api(self, api: game.GameBase):
-        self._game = api
+    def game_api(self, value):
+        self._game = value
 
-    def on_message(self, user_id: str, message: str):
+    def on_message(self, user_id, message):
         reply = None
         if message.startswith('!'):
             reply = self.parse_command(message)
@@ -44,14 +40,14 @@ class ChatBot(object):
         if reply is not None:
             self.server.send_message_to(user_id, reply)
 
-    def parse_message(self, message: str) -> Union[str, None]:
+    def parse_message(self, message):
         match = self.pattern_greeting.match(message)
         if match is not None:
             return "Hi"
 
         return None
 
-    def parse_command(self, message: str) -> Union[str, None]:
+    def parse_command(self, message):
         regex_command = r"!(\w+)((?: \w+:\w+)+)?"
         pattern_command = re.compile(regex_command)
 
