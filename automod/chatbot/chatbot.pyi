@@ -1,8 +1,21 @@
 import re
-from typing import Pattern, List
+from enum import Enum
+from typing import Pattern, List, Dict, Union
 
 from automod.chat import ChatBase
 from automod.game_api import GameBase
+
+
+class MessageTone(Enum):
+    POSITIVE = 1
+    NEUTRAL = 0
+    NEGATIVE = -1
+
+
+class WarningLevel(Enum):
+    WARNING = 0
+    MUTE = 1
+    BAN = 2
 
 
 class ChatBot(object):
@@ -12,6 +25,7 @@ class ChatBot(object):
     pattern_greeting: Pattern = re.compile(regex_greeting)
 
     def __init__(self) -> None:
+        self._watch_list: Dict[str, Dict[str, Union[float, WarningLevel]]] = {}
         self._game: GameBase = None
         self._server: ChatBase = None
         ...
@@ -39,4 +53,11 @@ class ChatBot(object):
         ...
 
     def parse_command(self, message: str) -> str:
+        ...
+
+    @staticmethod
+    def get_behaviour(message: str) -> MessageTone:
+        ...
+
+    def monitor_behaviour(self, user_id: str, message: str):
         ...

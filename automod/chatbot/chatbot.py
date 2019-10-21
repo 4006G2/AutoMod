@@ -3,6 +3,9 @@ __version__ = "0.1p"
 
 import random
 import re
+from enum import Enum
+
+import requests
 
 
 class MessageTone(Enum):
@@ -25,6 +28,7 @@ class ChatBot(object):
 
     def __init__(self):
         super().__init__()
+        self._watch_list = {}
         self._server = None
         self._game = None
 
@@ -78,7 +82,8 @@ class ChatBot(object):
                 return self.game_api.send(command)
         return None
 
-    def get_behaviour(self, message: str) -> MessageTone:
+    @staticmethod
+    def get_behaviour(message):
         """
         :param message: user input
         :return: Enum value of negative, neutral, positive
@@ -106,35 +111,35 @@ class ChatBot(object):
         else:
             return MessageTone.NEUTRAL
 
-    def monitor_behaviour(self, user: str, user_input: str) -> Union[WarningLevel, None]:
+    def monitor_behaviour(self, user_id, message):
         """
-        :param user: user who sent the message
-        :param user_input: whole text entered by the user
+        :param user_id: user who sent the message
+        :param message: whole text entered by the user
         :return: Enum value of the level of warning of the user
         """
         #  we don't care about them if they haven't been reported.
-        if user not in self._watch_list:
+        if user_id not in self._watch_list:
             return None
 
-        tone = self.get_behaviour(user_input)
+        tone = self.get_behaviour(message)
         if tone == MessageTone.NEGATIVE:
-            self._watch_list[user][0] += 1
+            self._watch_list[user_id][0] += 1
         elif tone == MessageTone.POSITIVE:
-            self._watch_list[user][0] -= 0.2
+            self._watch_list[user_id][0] -= 0.2
 
-        if self._watch_list[user]['strikes'] >= 3:
-            if self._watch_list[user]['level'] is None:
+        if self._watch_list[user_id]['strikes'] >= 3:
+            if self._watch_list[user_id]['level'] is None:
                 # self.warn_user(user)
-                self._watch_list[user]['level'] = WarningLevel.WARNING
-                self._watch_list[user]['strikes'] -= 3
+                self._watch_list[user_id]['level'] = WarningLevel.WARNING
+                self._watch_list[user_id]['strikes'] -= 3
                 return WarningLevel.WARNING
-            elif self._watch_list[user]['level'] == WarningLevel.WARNING:
+            elif self._watch_list[user_id]['level'] == WarningLevel.WARNING:
                 # self.mute_user(user)
-                self._watch_list[user]['level'] = WarningLevel.MUTE
-                self._watch_list[user]['strikes'] -= 1
+                self._watch_list[user_id]['level'] = WarningLevel.MUTE
+                self._watch_list[user_id]['strikes'] -= 1
                 return WarningLevel.MUTE
             else:
                 # self.ban_user(user)
-                self._watch_list[user][1] = WarningLevel.BAN
+                self._watch_list[user_id][1] = WarningLevel.BAN
                 return WarningLevel.BAN
         return None
