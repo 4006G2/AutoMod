@@ -1,6 +1,7 @@
 __author__ = "Benedict Thompson"
 __version__ = "0.1p"
 
+import random
 import re
 
 
@@ -32,18 +33,17 @@ class ChatBot(object):
         self._game = value
 
     def on_message(self, user_id, message):
-        reply = None
         if message.startswith('!'):
             reply = self.parse_command(message)
         else:
             reply = self.parse_message(message)
-        if reply is not None:
-            self.server.send_message_to(user_id, reply)
+
+        return reply
 
     def parse_message(self, message):
         match = self.pattern_greeting.match(message)
         if match is not None:
-            return "Hi"
+            return random.choice(self.greetings)
 
         return None
 

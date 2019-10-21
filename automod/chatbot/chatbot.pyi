@@ -1,11 +1,15 @@
-from typing import Pattern
+import re
+from typing import Pattern, List
 
 from automod.chat import ChatBase
 from automod.game_api import GameBase
 
 
 class ChatBot(object):
-    pattern_greeting: Pattern = None
+    name: str = "AutoMod"
+    greetings: List[str] = ["Hi", "Hello", "Hey"]
+    regex_greeting: str = "({0})(?:,? {1})?".format('|'.join(greetings), name)
+    pattern_greeting: Pattern = re.compile(regex_greeting)
 
     def __init__(self) -> None:
         self._game: GameBase = None
