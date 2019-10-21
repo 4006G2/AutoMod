@@ -3,6 +3,7 @@ __version__ = "0.1p"
 
 import random
 import re
+import time
 from enum import Enum
 
 import requests
@@ -144,40 +145,11 @@ class ChatBot(object):
                 return WarningLevel.BAN
         return None
 
-    # this function should detect if the user gives no input, then print out some talking points
-    def raise_discussion(self, msg: str):
+    def raise_discussion(self, t_message):
         """
-        -Check if any function with input does not receive input
-        -if it does not receive, print: some talking points or future events
-        :type msg: object
-        :rtype: None
-
+        Checks how much time has passed since the last message, and returns something to say if it has been too long
+        :param t_message the time of the last message (epoch seconds)
+        :return: a string to print or None
         """
-
-        print("You have entered in the stream chatroom")
-
-        while True:
-            rand_tk = random.randint(0, len(self.talkingPoints))
-            rand_subs = random.randint(1, 12)
-            rand_time = float(random.uniform(1.5, 5))
-            rand_user = random.randint(0, len(self.users))
-            rand_donation = float(random.uniform(1.23, 20.67))
-
-            # Here should check if the main functions with input
-            message = msg
-
-            if message == ""
-                time.sleep(rand_time)
-                print(self.talkingPoints[rand_tk - 1])
-            elif message == "/quit":
-                print("You have exited the chatroom")
-                break
-            else:
-
-                time.sleep(rand_time)
-                # users that entered in the chatroom
-                print(str(rand_subs) + " users entered in the chatroom")
-                time.sleep(rand_time + 8)
-                # donations
-                print("The user '" + str(self.users[rand_user - 1]) + "' has donated " + str(round(rand_donation, 2)) + " £")
-         return None
+        dt = time.time() - t_message
+        ...

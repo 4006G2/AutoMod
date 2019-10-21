@@ -61,3 +61,6 @@ class ChatBot(object):
 
     def monitor_behaviour(self, user_id: str, message: str):
         ...
+
+    def raise_discussion(self, t_message: int) -> Union[str, None]:
+        ...
