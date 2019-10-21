@@ -165,5 +165,7 @@ class ChatBot(object):
         """
         :rtype: None
         """
-        # check current time, then compare it with the event time to decide whether or not a alert is needed
+        # if current time(google pyhthon system time) - event time = 1 hour, 30 mins, 15 mins or 5 mins
+        # --> alert chat(print for now)
+        cur_time = 0
         pass  # TODO
