@@ -8,6 +8,9 @@ from enum import Enum
 import csv
 import requests
 
+import time
+import datetime
+
 
 class MessageTone(Enum):
     POSITIVE = 1
@@ -32,6 +35,7 @@ class ChatBot(object):
         self._watch_list = {}
         self._server = None
         self._game = None
+        self.events = []  # [(time, event), ...]
 
     @property
     def server(self):
@@ -153,7 +157,16 @@ class ChatBot(object):
         file_name = input("Enter file name: ")
         with open(file_name) as csvfile:
             data = csv.reader(csvfile)
-            self.events = [(e[0], e[1]) for e in data]
+            for row in data:
+                time_in = row[0]
+                split_time = time_in.split(':')
+                hours = int(split_time[0])
+                minutes = int(split_time[1])
+                today = datetime.date.today()
+                time_today = datetime.datetime(today.year, today.month, today.day, hours, minutes)
+                self.events.append((time_today, row[1]))
+            # self.events = [(e[0], e[1]) for e in data]
+            self.events.sort(key=lambda t: t[0])
 
     # this function should check the system time and alert chat when an event is happening in
     # 1 hour, 30 mins, 15 mins and 5 mins
@@ -161,9 +174,8 @@ class ChatBot(object):
         """
         :rtype: None
         """
-        # if current time(google pyhthon system time) - event time = 1 hour, 30 mins, 15 mins or 5 mins
-        # --> alert chat(print for now)
-        cur_time = 0
+        # if current time > event time - 1 hour, 30 mins, 15 mins or 5 mins --> alert chat
+        cur_time = datetime.date.today()
         pass  # TODO
 
 
