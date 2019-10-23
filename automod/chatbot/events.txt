@@ -1,0 +1,3 @@
+10:00, stream start
+11:30, giveaway
+12:00, stream end

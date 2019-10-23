@@ -5,6 +5,7 @@ import random
 import re
 from enum import Enum
 
+import csv
 import requests
 
 
@@ -150,10 +151,9 @@ class ChatBot(object):
         :rtype: None
         """
         file_name = input("Enter file name: ")
-        file = open(file_name, "r")
-        # add data into the global variable - event (look up python dictionary and how to read file)
-        pass  # TODO
-        file.close()
+        with open(file_name) as csvfile:
+            data = csv.reader(csvfile)
+            self.events = [(e[0], e[1]) for e in data]
 
     # this function should check the system time and alert chat when an event is happening in
     # 1 hour, 30 mins, 15 mins and 5 mins
@@ -165,3 +165,9 @@ class ChatBot(object):
         # --> alert chat(print for now)
         cur_time = 0
         pass  # TODO
+
+
+if __name__ == "__main__":
+    c = ChatBot()
+    c.register_events()
+    print(c.events)
