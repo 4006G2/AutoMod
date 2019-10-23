@@ -7,12 +7,8 @@ import abc
 class ChatBase(abc.ABC):
     def __init__(self, chat_bot):
         super().__init__()
-        self._chat_bot = chat_bot
+        self.chat_bot = chat_bot
         chat_bot.server = self
-
-    @abc.abstractmethod
-    def on_message_received(self, user_id, message):
-        pass
 
     @abc.abstractmethod
     def broadcast_message(self, message):
