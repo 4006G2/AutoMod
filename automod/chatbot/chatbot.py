@@ -7,7 +7,7 @@ import time
 from enum import Enum
 
 import requests
-
+import json
 
 class MessageTone(Enum):
     POSITIVE = 1
@@ -145,11 +145,24 @@ class ChatBot(object):
                 return WarningLevel.BAN
         return None
 
-    def raise_discussion(self, t_message):
+    def raise_discussion(t_message):
         """
         Checks how much time has passed since the last message, and returns something to say if it has been too long
         :param t_message the time of the last message (epoch seconds)
         :return: a string to print or None
-        """
+
         dt = time.time() - t_message
         ...
+
+        """
+        if t_message == 30:
+            threading.Timer(t_message, message).start()
+        else:
+            return None
+
+    def message():
+        with open('info.json', 'r') as read_info:
+            read = json.load(read_info)
+            index = random.randint(0, len(read))
+            print(read[index])
+            return read[index]
