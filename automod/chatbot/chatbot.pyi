@@ -61,3 +61,6 @@ class ChatBot(object):
 
     def monitor_behaviour(self, user_id: str, message: str):
         ...
+
+    def is_spam(self, user: str, message: str) -> bool:
+        ...

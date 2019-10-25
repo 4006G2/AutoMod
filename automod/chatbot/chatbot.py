@@ -143,3 +143,7 @@ class ChatBot(object):
                 self._watch_list[user_id][1] = WarningLevel.BAN
                 return WarningLevel.BAN
         return None
+
+    def is_spam(self, user, message):
+        """Detects if the message sent by the user is spam"""
+        pass
