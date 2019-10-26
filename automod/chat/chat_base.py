@@ -11,7 +11,7 @@ class ChatBase(abc.ABC):
         chat_bot.server = self
 
     @abc.abstractmethod
-    def broadcast_message(self, message):
+    def broadcast_message(self, ch_name, message):
         pass
 
     @abc.abstractmethod
