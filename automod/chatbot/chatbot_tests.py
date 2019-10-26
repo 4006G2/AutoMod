@@ -5,6 +5,7 @@ import unittest
 from typing import Dict
 
 from .chatbot import ChatBot, MessageTone
+import timeit
 
 POSITIVE = MessageTone.POSITIVE
 NEUTRAL = MessageTone.NEUTRAL
@@ -23,11 +24,12 @@ class ChatBotTests(unittest.TestCase):
             with self.subTest(message=message):
                 self.assertEqual(self.chat_bot.get_behaviour(message), expected)
 
-    def test_func(self):
-        message = input("")
-        m = self.chat_bot.raise_discussion()
+    def test_raise(self):
+        t_message = timeit.default_timer()
+        msg = input()
+        m = self.chat_bot.raise_discussion(t_message)
         self.assertTrue(m)
-        self.assertFalse(m)
+
 
 if __name__ == '__main__':
     unittest.main()

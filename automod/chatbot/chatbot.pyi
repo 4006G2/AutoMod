@@ -25,6 +25,7 @@ class ChatBot(object):
     pattern_greeting: Pattern = re.compile(regex_greeting)
 
     def __init__(self) -> None:
+        self.events = [None]
         self._watch_list: Dict[str, Dict[str, Union[float, WarningLevel]]] = {}
         self._game: GameBase = None
         self._server: ChatBase = None
@@ -62,5 +63,5 @@ class ChatBot(object):
     def monitor_behaviour(self, user_id: str, message: str):
         ...
 
-    def raise_discussion(self, t_message: int) -> Union[str, None]:
+    def raise_discussion(self, t_message: int) -> object:
         ...
