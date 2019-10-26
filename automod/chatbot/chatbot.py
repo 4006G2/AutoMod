@@ -154,7 +154,7 @@ class ChatBot(object):
         :param t_message the time of the last message (epoch seconds)
         :return: a string to print or None
         dt = time.time() - t_message
-        *Note: this function should be called with a variable assigned with the starting point when an input is met
+        *Note: this function should be called with a variable assigned with the starting point before when an input is met
         """
         with open('info.json', 'r') as read_info:
             read = json.load(read_info)
