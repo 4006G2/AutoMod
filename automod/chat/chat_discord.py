@@ -9,7 +9,7 @@ class ChatDiscord(ChatBase):
         self.client = discord.Client()
         self.guilds = self.client.guilds
 
-    def find_guild_id(self, guild_name):
+    async def find_guild_id(self, guild_name):
         guilds = await self.client.fetch_guilds(limit=10).flatten()
         for guild in guilds:
             if guild.name == guild_name:
@@ -78,11 +78,24 @@ class ChatDiscord(ChatBase):
         await self.broadcast_message('general', message)
         await self.client.close()
 
-    async def send_mute_req(self, user_name, reason=None):
+    async def send_mute_req(self, user_name, ch_name, reason=None):
         user_id = self.find_user_id(user_name)
         user = self.client.get_user(user_id)
-        guild_id = self.find_guild_id('AutoModTesting')
-        guild = self.client.get_guild(guild_id)
-        role = discord.utils.get(user.server.roles, name='Muted')
-        await guild.add_roles(user, role)
+        ch_id = self.find_channel_id(ch_name)
+        ch = self.client.get_channel(ch_id)
+        if reason is None:
+            reason = "Cause I can."
+        message = f"{user_name} have been muted for {reason}!"
+        await ch.set_permissions(user, read_messages=True, send_messages=False)
+        await self.broadcast_message('general', message)
+        await self.client.close()
+
+    async def unmute(self, user_name, ch_name, reason=None):
+        user_id = self.find_user_id(user_name)
+        user = self.client.get_user(user_id)
+        ch_id = self.find_channel_id(ch_name)
+        ch = self.client.get_channel(ch_id)
+        message = f"{user_name} have been unmuted for {reason}!"
+        await ch.set_permissions(user, overwrite=None)
+        await self.broadcast_message('general', message)
         await self.client.close()
