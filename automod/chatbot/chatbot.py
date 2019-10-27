@@ -156,7 +156,7 @@ class ChatBot(object):
         dt = time.time() - t_message
         *Note: this function should be called with a variable assigned with the starting point before when an input is met
         """
-        with open('info.json', 'r') as read_info:
+        with open('automod/chat/info.json', 'r') as read_info:
             read = json.load(read_info)
             for i in range(len(read)):
                 self.events.append(read[i])
