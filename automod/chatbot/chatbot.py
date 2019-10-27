@@ -163,7 +163,7 @@ class ChatBot(object):
 
         dt = timeit.default_timer() - t_message
 
-        if dt > 25:
+        if dt >= 25:
             index = random.randint(0, len(self.events) - 1)
             return self.events[index]
         else:
