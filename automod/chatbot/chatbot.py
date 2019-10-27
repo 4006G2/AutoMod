@@ -154,8 +154,8 @@ class ChatBot(object):
         """
         :rtype: None
         """
-        file_name = input("Enter file name: ")
-        with open(file_name) as csvfile:
+        # file_name = input("Enter file name: ")
+        with open('events.txt') as csvfile:
             data = csv.reader(csvfile)
             for row in data:
                 time_in = row[0]
@@ -175,11 +175,28 @@ class ChatBot(object):
         :rtype: None
         """
         # if current time > event time - 1 hour, 30 mins, 15 mins or 5 mins --> alert chat
-        cur_time = datetime.date.today()
-        pass  # TODO
+        cur_time = datetime.datetime.today()
+        for e in self.events:
+            print(cur_time.hour)
+            print(e[0].hour - 1)
+            if self.find_alert_time(e[0], 60) <= cur_time < e[0]:
+                print(f"{e[1]} is happening in 1 hour!")
+            # Sanushan: continue here
+            elif ...:
+                ...  # TODO
+
+    def find_alert_time(self, e_time, t):
+        if t == 60:
+            return datetime.datetime(e_time.year, e_time.month, e_time.day, e_time.hour - 1, e_time.minute)
+        else:
+            if (e_time.minutes - t) < 0:
+                return datetime.datetime(e_time.year, e_time.month, e_time.day, e_time.hour - 1,
+                                         e_time.minute + 60 - t)
+            else:
+                return datetime.datetime(e_time.year, e_time.month, e_time.day, e_time.hour, e_time.minute - t)
 
 
 if __name__ == "__main__":
     c = ChatBot()
     c.register_events()
-    print(c.events)
+    c.event_alert()
