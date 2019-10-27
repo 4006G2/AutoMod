@@ -10,7 +10,8 @@ class ChatDiscord(ChatBase):
         self.guilds = self.client.guilds
 
     def find_guild_id(self, guild_name):
-        for guild in self.client.guilds():
+        guilds = await self.client.fetch_guilds(limit=10).flatten()
+        for guild in guilds:
             if guild.name == guild_name:
                 return guild.id
         return None
