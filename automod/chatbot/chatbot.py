@@ -176,14 +176,15 @@ class ChatBot(object):
         """
         # if current time > event time - 1 hour, 30 mins, 15 mins or 5 mins --> alert chat
         cur_time = datetime.datetime.today()
-        for e in self.events:
-            print(cur_time.hour)
-            print(e[0].hour - 1)
-            if self.find_alert_time(e[0], 60) <= cur_time < e[0]:
-                print(f"{e[1]} is happening in 1 hour!")
-            # Sanushan: continue here
-            elif ...:
-                ...  # TODO
+        if self.find_alert_time(self.events[0][0], 5) <= cur_time < self.events[0]:
+            print(f"{self.events[0][1]} is happening in 5 minutes!")
+            self.events[0].pop()
+        elif self.find_alert_time(self.events[0][0], 15) <= cur_time < self.events[0]:
+            print(f"{self.events[0][1]} is happening in 15 minutes!")
+        elif self.find_alert_time(self.events[0][0], 30) <= cur_time < self.events[0]:
+            print(f"{self.events[0][1]} is happening in 30 minutes!")
+        elif self.find_alert_time(self.events[0][0], 60) <= cur_time < self.events[0]:
+            print(f"{self.events[0][1]} is happening in 1 hour!")
 
     def find_alert_time(self, e_time, t):
         if t == 60:
