@@ -1,7 +1,6 @@
 __author__ = "Benedict Thompson"
 __version__ = "0.1p"
 
-import json
 import random
 import re
 import time
@@ -34,6 +33,7 @@ class ChatBot(object):
         self._watch_list = {}
         self._server = None
         self._game = None
+        self._discussion_points = []
         self.init_discussion()
 
     @property
@@ -149,10 +149,8 @@ class ChatBot(object):
         return None
 
     def init_discussion(self):
-        with open('/info.json', 'r') as read_info:
-            info = json.load(read_info)
-            for i in range(len(info)):
-                self.events.append(info[i])
+        with open('/info.txt', 'r') as read_info:
+            self._discussion_points = read_info.readlines()
 
     def raise_discussion(self, t_message):
         """
@@ -161,12 +159,10 @@ class ChatBot(object):
         :return: a string to print or None
         *Note: this function should be called with a variable assigned with the starting point before when an input is met
         """
-
         dt = time.time() - t_message
 
+        # TODO: DETECT IF THE LAST MESSAGE WAS FROM US!
         if dt >= 25:
-            # index = random.randint(0, len(self.events) - 1)
-            # return self.events[index]
-            return random.choice(self.events)
+            return random.choice(self._discussion_points)
         else:
             return None

@@ -1,4 +1,3 @@
-import re
 from enum import Enum
 from typing import Pattern, List, Dict, Union, Optional
 
@@ -19,16 +18,16 @@ class WarningLevel(Enum):
 
 
 class ChatBot(object):
-    name: str = "AutoMod"
-    greetings: List[str] = ["Hi", "Hello", "Hey"]
-    regex_greeting: str = "({0})(?:,? {1})?".format('|'.join(greetings), name)
-    pattern_greeting: Pattern = re.compile(regex_greeting)
+    name: str = ...
+    greetings: List[str] = ...
+    regex_greeting: str = ...
+    pattern_greeting: Pattern = ...
 
     def __init__(self) -> None:
-        self.events = [None]
-        self._watch_list: Dict[str, Dict[str, Union[float, WarningLevel]]] = {}
-        self._game: GameBase = None
-        self._server: ChatBase = None
+        self._discussion_points: List[str] = ...
+        self._watch_list: Dict[str, Dict[str, Union[float, WarningLevel]]] = ...
+        self._game: GameBase = ...
+        self._server: ChatBase = ...
         ...
 
     @property
