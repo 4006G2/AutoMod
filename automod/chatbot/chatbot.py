@@ -1,14 +1,13 @@
 __author__ = "Benedict Thompson"
 __version__ = "0.1p"
 
-
-import re
-from enum import Enum
-import requests
-
 import json
-import timeit
 import random
+import re
+import time
+from enum import Enum
+
+import requests
 
 
 class MessageTone(Enum):
@@ -35,6 +34,7 @@ class ChatBot(object):
         self._watch_list = {}
         self._server = None
         self._game = None
+        self.init_discussion()
 
     @property
     def server(self):
@@ -148,23 +148,25 @@ class ChatBot(object):
                 return WarningLevel.BAN
         return None
 
+    def init_discussion(self):
+        with open('/info.json', 'r') as read_info:
+            info = json.load(read_info)
+            for i in range(len(info)):
+                self.events.append(info[i])
+
     def raise_discussion(self, t_message):
         """
         Checks how much time has passed since the last message, and returns something to say if it has been too long
         :param t_message the time of the last message (epoch seconds)
         :return: a string to print or None
-        dt = time.time() - t_message
         *Note: this function should be called with a variable assigned with the starting point before when an input is met
         """
-        with open('automod/chatbot/info.json', 'r') as read_info:
-            read = json.load(read_info)
-            for i in range(len(read)):
-                self.events.append(read[i])
 
-        dt = timeit.default_timer() - t_message
+        dt = time.time() - t_message
 
         if dt >= 25:
-            index = random.randint(0, len(self.events) - 1)
-            return self.events[index]
+            # index = random.randint(0, len(self.events) - 1)
+            # return self.events[index]
+            return random.choice(self.events)
         else:
             return None

@@ -1,6 +1,6 @@
 import re
 from enum import Enum
-from typing import Pattern, List, Dict, Union
+from typing import Pattern, List, Dict, Union, Optional
 
 from automod.chat import ChatBase
 from automod.game_api import GameBase
@@ -63,5 +63,7 @@ class ChatBot(object):
     def monitor_behaviour(self, user_id: str, message: str):
         ...
 
-    def raise_discussion(self, t_message: int) -> object:
+    def init_discussion(self) -> None:
+
+    def raise_discussion(self, t_message: int) -> Optional[str]:
         ...
