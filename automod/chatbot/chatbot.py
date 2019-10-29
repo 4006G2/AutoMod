@@ -35,6 +35,7 @@ class ChatBot(object):
         self._game = None
         self._discussion_points = []
         self.init_discussion()
+        self.user_msg = {}
 
     @property
     def server(self):
@@ -166,3 +167,34 @@ class ChatBot(object):
             return random.choice(self._discussion_points)
         else:
             return None
+
+    def is_spam(self, user, msg_t, message):
+        spam = False
+        if user not in self.user_msg:
+            self.user_msg[user] = []
+        self.user_msg[user].append((msg_t, message))
+        if len(self.user_msg[user]) >= 3:  # similarity check
+            if self.same_msg(self.user_msg[user]):
+                spam = True
+        if ...:  # too many msg too soon
+            pass
+
+    def same_msg(self, msg_lst):
+        same = False
+        for i in range(len(msg_lst)-1):
+            if msg_lst[i][1] == msg_lst[i+1][1]:
+                same = True
+            else:
+                return False
+        return same
+
+    def msg_t(self, user, msg_time):
+        spam = False
+        cur_time = time.time() - msg_time
+        if len(self.user_msg[user]) >= 5:
+            if cur_time < 60 and spam is False:
+                spam = True
+            else:
+                return spam
+        return spam
+
