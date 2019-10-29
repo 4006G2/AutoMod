@@ -69,9 +69,5 @@ class ChatBot(object):
     def raise_discussion(self, t_message: int) -> Optional[str]:
         ...
 
-    def is_spam(self, user: str, message: str) -> bool:
-        ...
-
-
-    def is_spam(self, user: str, message: str) -> bool:
+    def is_spam(self, user: str, msg_t: str, message: str) -> bool:
         ...

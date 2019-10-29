@@ -197,8 +197,3 @@ class ChatBot(object):
             else:
                 return spam
         return spam
-
-
-    def is_spam(self, user, message):
-        """Detects if the message sent by the user is spam"""
-        pass
