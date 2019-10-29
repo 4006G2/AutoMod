@@ -3,6 +3,7 @@ __version__ = "0.1p"
 
 import random
 import re
+import time
 from enum import Enum
 
 import requests
@@ -25,12 +26,15 @@ class ChatBot(object):
     greetings = ["Hi", "Hello", "Hey"]
     regex_greeting = "({0})(?:,? {1})?".format('|'.join(greetings), name)
     pattern_greeting = re.compile(regex_greeting)
+    events = []
 
     def __init__(self):
         super().__init__()
         self._watch_list = {}
         self._server = None
         self._game = None
+        self._discussion_points = []
+        self.init_discussion()
 
     @property
     def server(self):
@@ -143,3 +147,22 @@ class ChatBot(object):
                 self._watch_list[user_id][1] = WarningLevel.BAN
                 return WarningLevel.BAN
         return None
+
+    def init_discussion(self):
+        with open('/info.txt', 'r') as read_info:
+            self._discussion_points = read_info.readlines()
+
+    def raise_discussion(self, t_message):
+        """
+        Checks how much time has passed since the last message, and returns something to say if it has been too long
+        :param t_message the time of the last message (epoch seconds)
+        :return: a string to print or None
+        *Note: this function should be called with a variable assigned with the starting point before when an input is met
+        """
+        dt = time.time() - t_message
+
+        # TODO: DETECT IF THE LAST MESSAGE WAS FROM US!
+        if dt >= 25:
+            return random.choice(self._discussion_points)
+        else:
+            return None
