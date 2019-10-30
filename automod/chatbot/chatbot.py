@@ -170,14 +170,18 @@ class ChatBot(object):
 
     def is_spam(self, user, msg_t, message):
         spam = False
-        if user not in self.user_msg:
+        if user not in self.user_msg:  # check if user exists in dict
             self.user_msg[user] = []
+        elif len(self.user_msg[user]) == 5:  # check if user has 5 messages saved
+            self.user_msg[user][0].pop(0)
         self.user_msg[user].append((msg_t, message))
         if len(self.user_msg[user]) >= 3:  # similarity check
             if self.same_msg(self.user_msg[user]):
                 spam = True
-        if ...:  # too many msg too soon
-            pass
+        if len(self.user_msg[user]) == 5:  # too many msg too soon
+            if self.too_many_msg(self.user_msg[user]):
+                spam = True
+        return spam
 
     def same_msg(self, msg_lst):
         same = False
@@ -188,12 +192,9 @@ class ChatBot(object):
                 return False
         return same
 
-    def msg_t(self, user, msg_time):
-        spam = False
-        cur_time = time.time() - msg_time
-        if len(self.user_msg[user]) >= 5:
-            if cur_time < 60 and spam is False:
-                spam = True
-            else:
-                return spam
-        return spam
+    def too_many_msg(self, msg_lst):
+        t_interval = msg_lst[0][0] - msg_lst[len(msg_lst)-1][0]
+        if t_interval.seconds >= 10:
+            return True
+        else:
+            return False
