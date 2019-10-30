@@ -71,4 +71,9 @@ class ChatBot(object):
 
     def is_spam(self, user: str, msg_t: str, message: str) -> bool:
         ...
-    def same_msg(self, msg_lst):
+
+    def same_msg(self, msg_lst: list) -> bool:
+        ...
+
+    def too_many_msg(self, msg_lst: list) -> bool:
+        ...
