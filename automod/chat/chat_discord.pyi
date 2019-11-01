@@ -1,5 +1,5 @@
 from automod.chatbot import ChatBot
-from typing import List
+from typing import List, Any
 from . import ChatBase
 from discord import Client, Guild
 
@@ -38,4 +38,13 @@ class ChatDiscord(ChatBase):
         ...
 
     def send_mute_req(self, user_id: str, reason: str = None) -> None:
+        ...
+
+    async def on_message(self, message: Any) -> None:
+        ...
+
+    async def send_message_to_id(self, user_id, message):
+        ...
+
+    async def tasks(self):
         ...
