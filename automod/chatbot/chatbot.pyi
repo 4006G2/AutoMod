@@ -28,6 +28,7 @@ class ChatBot(object):
         self._watch_list: Dict[str, Dict[str, Union[float, WarningLevel]]] = {}
         self._game: GameBase = None
         self._server: ChatBase = None
+        self.events: List = []
         ...
 
     @property
@@ -60,4 +61,7 @@ class ChatBot(object):
         ...
 
     def monitor_behaviour(self, user_id: str, message: str):
+        ...
+
+    def register_events(self):
         ...
