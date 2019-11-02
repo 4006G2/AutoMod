@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import Pattern, List, Dict, Union, Optional
+import datetime
 
 from automod.chat import ChatBase
 from automod.game_api import GameBase
@@ -69,7 +70,7 @@ class ChatBot(object):
     def raise_discussion(self, t_message: int) -> Optional[str]:
         ...
 
-    def is_spam(self, user: str, msg_t: str, message: str) -> bool:
+    def is_spam(self, user: str, msg_t: datetime, message: str) -> bool:
         ...
 
     def same_msg(self, msg_lst: list) -> bool:
