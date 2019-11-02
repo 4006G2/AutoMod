@@ -109,7 +109,7 @@ class ChatDiscord(ChatBase):
     async def on_message(self, message):
         user = message.author.id
         if user != self.find_user_id('ModeratorBot'):
-            # await self.chat_bot.is_spam()
+            # await self.chat_bot.monitor_behavior (add is_spam() in it later)
             if message.content == "hi":
                 await self.send_message_to_id(user, "Hi")
             else:

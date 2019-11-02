@@ -3,14 +3,20 @@ __version__ = "0.1p"
 
 import automod.chatbot.chatbot as cb
 from automod.chat.chat_discord import ChatDiscord
+import csv
 
-TOKEN = 'NjM1OTU2MTQ2ODUwNzU4NjY2.Xa8FCQ.fajiq3kR39PXiPAwKbhYD5f3WfI'
+with open('keys.txt') as csvfile:
+    data = csv.reader(csvfile)
+    for row in data:
+        line = row[0].split(':')
+        if line[0] == "discord":
+            Discord_Token = line[1]
 
 
 def run():
     chat_bot = cb.ChatBot()
     # print(chat_bot.on_message("Ben", "Hello"))
-    platform = ChatDiscord(chat_bot, TOKEN)
+    platform = ChatDiscord(chat_bot, Discord_Token)
     # read event file
     stop = False
     while not stop:
