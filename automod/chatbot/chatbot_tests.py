@@ -22,12 +22,18 @@ class ChatBotTests(unittest.TestCase):
         for message, expected in test_data.items():
             with self.subTest(message=message):
                 self.assertEqual(self.chat_bot.get_behaviour(message), expected)
-
+    
     def test_raise(self):
-        t_message = timeit.default_timer()
-        msg = input()
-        m = self.chat_bot.raise_discussion(t_message)
-        self.assertTrue(m)
+        dt = [0, 25, 10, 30, 15, 5, 26, 24, -10]
+        for _t in dt:
+            t = time.time() - _t
+            with self.subTest(t=_t):
+                ret = self.chat_bot.raise_discussion(t)
+                if _t < 25:
+                    self.assertIsNone(ret)
+                else:
+                    self.assertIsNotNone(ret)
+
 
 
 if __name__ == '__main__':

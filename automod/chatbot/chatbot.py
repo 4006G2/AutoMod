@@ -164,7 +164,7 @@ class ChatBot(object):
         """
         dt = time.time() - t_message
 
-        # TODO: DETECT IF THE LAST MESSAGE WAS FROM US!
+        # TODO: DETECT IF THE LAST MESSAGE WAS FROM US! if so, return None
         if dt >= 25:
             return random.choice(self._discussion_points)
         else:
