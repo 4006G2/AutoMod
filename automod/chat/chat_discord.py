@@ -1,5 +1,6 @@
 from . import ChatBase
 import discord
+import asyncio
 
 
 class ChatDiscord(ChatBase):
@@ -29,6 +30,12 @@ class ChatDiscord(ChatBase):
                 return user.id
         return None
 
+    async def get_last_msg(self, ch_name):
+        ch_id = self.find_channel_id(ch_name)
+        ch = self.client.get_channel(ch_id)
+        async for message in ch.history(limit=1):
+            return message
+
     async def send_message_to_id(self, user_id, message):
         user = self.client.get_user(user_id)
         await user.send(message)
@@ -43,7 +50,6 @@ class ChatDiscord(ChatBase):
         user_id = self.find_user_id(user_name)
         user = self.client.get_user(user_id)
         await user.send(message)
-        await self.client.close()
 
     async def send_ban_req(self, user_name, reason=None):
         user_id = self.find_user_id(user_name)
@@ -107,15 +113,28 @@ class ChatDiscord(ChatBase):
 
     # client.event
     async def on_message(self, message):
-        user = message.author.id
-        if user != self.find_user_id('ModeratorBot'):
-            # await self.chat_bot.monitor_behavior (add is_spam() in it later)
-            if message.content == "hi":
-                await self.send_message_to_id(user, "Hi")
-            else:
-                await self.send_message_to_id(user, "I only know how to say hi.")
+        user_id = message.author.id
+        username = message.author.split('#')[0]
+        if user_id != self.find_user_id('ModeratorBot'):  # check if sender is the bot
+            if self.chat_bot.is_spam(user_id, message.time, message.content):  # spam check
+                self.send_mute_req(username, "Spamming")
+            if user_id not in self.chat_bot.watch_list:  # check if sender is monitored
+                action = await self.chat_bot.monitor_behaviour(user_id, message)
+                if action == 0:
+                    self.send_message_to(username, 'Please stop sending toxic messages!')
+                elif action == 1:
+                    self.send_mute_req(username, "Toxic behaviour.")
+                elif action == 2:
+                    self.send_ban_req(username, "Toxic behaviour.")
 
     async def tasks(self):
         await self.client.wait_until_ready()
-        # await self.chat_bot.raise_discussion()
-        # await self.chat_bot.event_alert()
+        while not self.client.is_closed():
+            last_msg = await self.get_last_msg('general')
+            prompt = await self.chat_bot.raise_discussion(last_msg.created_at.timestamp())
+            if len(prompt) != 0:
+                self.broadcast_message('general', prompt)
+            alert = await self.chat_bot.event_alert()
+            if len(alert) != 0:
+                self.broadcast_message('general', alert)
+            await asyncio.sleep(60)

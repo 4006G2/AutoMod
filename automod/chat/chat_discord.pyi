@@ -28,7 +28,7 @@ class ChatDiscord(ChatBase):
     def send_message_to(self, user_id: str, message: str) -> None:
         ...
 
-    def send_ban_req(self, user_id: str, reason: str = None) -> None:
+    def send_ban_req(self, user_name: str, reason: str = None) -> None:
         ...
 
     def find_banned_user(self, name: str):
@@ -37,7 +37,7 @@ class ChatDiscord(ChatBase):
     def unban(self, user_name, reason: str = None) -> None:
         ...
 
-    def send_mute_req(self, user_id: str, reason: str = None) -> None:
+    def send_mute_req(self, user_name: str, reason: str = None) -> None:
         ...
 
     async def on_message(self, message: Any) -> None:
@@ -47,4 +47,7 @@ class ChatDiscord(ChatBase):
         ...
 
     async def tasks(self):
+        ...
+
+    async def get_last_msg(self, ch_nameL: str) -> Any:
         ...
