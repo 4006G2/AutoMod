@@ -126,25 +126,27 @@ class ChatBot(object):
             return None
 
         tone = self.get_behaviour(message)
+        strikes = 'strikes'
+        level = 'level'
         if tone == MessageTone.NEGATIVE:
-            self._watch_list[user_id][0] += 1
+            self._watch_list[user_id][strikes] += 1
         elif tone == MessageTone.POSITIVE:
-            self._watch_list[user_id][0] -= 0.2
+            self._watch_list[user_id][strikes] -= 0.2
 
-        if self._watch_list[user_id]['strikes'] >= 3:
-            if self._watch_list[user_id]['level'] is None:
+        if self._watch_list[user_id][strikes] >= 3:
+            if self._watch_list[user_id][level] is None:
                 # self.warn_user(user)
-                self._watch_list[user_id]['level'] = WarningLevel.WARNING
-                self._watch_list[user_id]['strikes'] -= 3
+                self._watch_list[user_id][level] = WarningLevel.WARNING
+                self._watch_list[user_id][strikes] -= 3
                 return WarningLevel.WARNING
-            elif self._watch_list[user_id]['level'] == WarningLevel.WARNING:
+            elif self._watch_list[user_id][level] == WarningLevel.WARNING:
                 # self.mute_user(user)
-                self._watch_list[user_id]['level'] = WarningLevel.MUTE
-                self._watch_list[user_id]['strikes'] -= 1
+                self._watch_list[user_id][level] = WarningLevel.MUTE
+                self._watch_list[user_id][strikes] -= 1
                 return WarningLevel.MUTE
             else:
                 # self.ban_user(user)
-                self._watch_list[user_id][1] = WarningLevel.BAN
+                self._watch_list[user_id][level] = WarningLevel.BAN
                 return WarningLevel.BAN
         return None
 
