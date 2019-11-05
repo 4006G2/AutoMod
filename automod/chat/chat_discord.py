@@ -5,8 +5,9 @@ import discord
 class ChatDiscord(ChatBase):
     def __init__(self, chat_bot, token):
         super().__init__(chat_bot)
-        self.bot = token
+        self.token = token
         self.client = discord.Client()
+        self.client.event(self.on_message)
         self.guilds = self.client.guilds
 
     async def find_guild_id(self, guild_name):
@@ -27,6 +28,10 @@ class ChatDiscord(ChatBase):
             if user.name == user_name:
                 return user.id
         return None
+
+    async def send_message_to_id(self, user_id, message):
+        user = self.client.get_user(user_id)
+        await user.send(message)
 
     async def broadcast_message(self, ch_name, message):
         ch_id = self.find_channel_id(ch_name)
@@ -99,3 +104,18 @@ class ChatDiscord(ChatBase):
         await ch.set_permissions(user, overwrite=None)
         await self.broadcast_message('general', message)
         await self.client.close()
+
+    # client.event
+    async def on_message(self, message):
+        user = message.author.id
+        if user != self.find_user_id('ModeratorBot'):
+            # await self.chat_bot.monitor_behavior (add is_spam() in it later)
+            if message.content == "hi":
+                await self.send_message_to_id(user, "Hi")
+            else:
+                await self.send_message_to_id(user, "I only know how to say hi.")
+
+    async def tasks(self):
+        await self.client.wait_until_ready()
+        # await self.chat_bot.raise_discussion()
+        # await self.chat_bot.event_alert()
