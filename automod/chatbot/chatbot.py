@@ -35,6 +35,7 @@ class ChatBot(object):
         self._game = None
         self._discussion_points = []
         self.init_discussion()
+        self.user_msg = {}
 
     @property
     def server(self):
@@ -168,3 +169,65 @@ class ChatBot(object):
             return random.choice(self._discussion_points)
         else:
             return None
+
+    def is_spam(self, user, msg_t, message):
+        spam = False
+        if user not in self.user_msg:  # check if user exists in dict
+            self.user_msg[user] = []
+        elif len(self.user_msg[user]) == 5:  # check if user has 5 messages saved
+            self.user_msg[user].pop(0)
+        self.user_msg[user].append((msg_t, message))
+        if len(self.user_msg[user]) >= 3:  # similarity check
+            if self.same_msg(self.user_msg[user]):
+                spam = True
+        if len(self.user_msg[user]) == 5:  # too many msg too soon
+            if self.too_many_msg(self.user_msg[user]):
+                spam = True
+        # print(spam)
+        return spam
+
+    def same_msg(self, msg_lst):
+        same = False
+        for i in range(len(msg_lst)-1):
+            if msg_lst[i][1] == msg_lst[i+1][1]:
+                same = True
+            else:
+                return False
+        return same
+
+    def too_many_msg(self, msg_lst):
+        t_interval = msg_lst[0][0] - msg_lst[len(msg_lst)-1][0]
+        if t_interval.seconds >= 10:
+            return True
+        else:
+            return False
+
+# testing
+# if __name__ == "__main__":
+#     import datetime
+#     cb = ChatBot()
+#     usr = 'user'
+#     msg1 = 'hi'
+#     msg1_t = datetime.datetime(2019, 11, 2, 17, 5, 22)
+#     msg2 = 'hello'
+#     msg2_t = datetime.datetime(2019, 11, 2, 17, 5, 23)
+#     msg3 = 'no'
+#     msg3_t = datetime.datetime(2019, 11, 2, 17, 5, 24)
+#     msg4 = 'way'
+#     msg4_t = datetime.datetime(2019, 11, 2, 17, 5, 25)
+#     msg5 = 'yes'
+#     msg5_t = datetime.datetime(2019, 11, 2, 17, 5, 31)
+#     msg6 = 'me'
+#     msg6_t = datetime.datetime(2019, 11, 2, 17, 5, 32)
+#     cb.is_spam(usr, msg1_t, msg1)
+#     print(cb.user_msg)
+#     cb.is_spam(usr, msg2_t, msg2)
+#     print(cb.user_msg)
+#     cb.is_spam(usr, msg3_t, msg3)
+#     print(cb.user_msg)
+#     cb.is_spam(usr, msg4_t, msg4)
+#     print(cb.user_msg)
+#     cb.is_spam(usr, msg5_t, msg5)
+#     print(cb.user_msg)
+#     cb.is_spam(usr, msg6_t, msg6)
+#     print(cb.user_msg)
