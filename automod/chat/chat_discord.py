@@ -118,20 +118,19 @@ class ChatDiscord(ChatBase):
         if user_id != self.find_user_id('ModeratorBot'):  # check if sender is the bot
             if self.chat_bot.is_spam(user_id, message.time, message.content):  # spam check
                 self.send_mute_req(username, "Spamming")
-            if user_id not in self.chat_bot.watch_list:  # check if sender is monitored
-                action = await self.chat_bot.monitor_behaviour(user_id, message)
-                if action == 0:
-                    self.send_message_to(username, 'Please stop sending toxic messages!')
-                elif action == 1:
-                    self.send_mute_req(username, "Toxic behaviour.")
-                elif action == 2:
-                    self.send_ban_req(username, "Toxic behaviour.")
+            action = await self.chat_bot.monitor_behaviour(user_id, message)
+            if action == 0:
+                self.send_message_to(username, 'Please stop sending toxic messages!')
+            elif action == 1:
+                self.send_mute_req(username, "Toxic behaviour.")
+            elif action == 2:
+                self.send_ban_req(username, "Toxic behaviour.")
 
     async def tasks(self):
         await self.client.wait_until_ready()
         while not self.client.is_closed():
             last_msg = await self.get_last_msg('general')
-            prompt = await self.chat_bot.raise_discussion(last_msg.created_at.timestamp())
+            prompt = await self.chat_bot.raise_discussion(last_msg)
             if len(prompt) != 0:
                 self.broadcast_message('general', prompt)
             alert = await self.chat_bot.event_alert()
