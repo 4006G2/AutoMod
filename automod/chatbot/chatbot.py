@@ -6,7 +6,11 @@ import re
 import time
 from enum import Enum
 
+import csv
 import requests
+
+import time
+import datetime
 
 
 class MessageTone(Enum):
@@ -33,6 +37,7 @@ class ChatBot(object):
         self._watch_list = {}
         self._server = None
         self._game = None
+        self.events = []  # [(time, event), ...]
         self._discussion_points = []
         self.init_discussion()
         self.user_msg = {}
@@ -151,10 +156,57 @@ class ChatBot(object):
                 return WarningLevel.BAN
         return None
 
+    # this function should read a text file containing the stream events and the time of it happening
+    def register_events(self):
+        """
+        :rtype: None
+        """
+        # file_name = input("Enter file name: ")
+        with open('events.txt') as csvfile:
+            data = csv.reader(csvfile)
+            for row in data:
+                time_in = row[0]
+                split_time = time_in.split(':')
+                hours = int(split_time[0])
+                minutes = int(split_time[1])
+                today = datetime.date.today()
+                time_today = datetime.datetime(today.year, today.month, today.day, hours, minutes)
+                self.events.append((time_today, row[1]))
+            # self.events = [(e[0], e[1]) for e in data]
+            self.events.sort(key=lambda t: t[0])
+
+    # this function should check the system time and alert chat when an event is happening in
+    # 1 hour, 30 mins, 15 mins and 5 mins
+    def event_alert(self):
+        """
+        :rtype: None
+        """
+        # if current time > event time - 1 hour, 30 mins, 15 mins or 5 mins --> alert chat
+        cur_time = datetime.datetime.today()
+        if self.find_alert_time(self.events[0][0], 5) <= cur_time < self.events[0][0]:
+            print(f"{self.events[0][1]} is happening in 5 minutes!")
+            self.events.pop(0)
+        elif self.find_alert_time(self.events[0][0], 15) <= cur_time < self.events[0][0]:
+            print(f"{self.events[0][1]} is happening in 15 minutes!")
+        elif self.find_alert_time(self.events[0][0], 30) <= cur_time < self.events[0][0]:
+            print(f"{self.events[0][1]} is happening in 30 minutes!")
+        elif self.find_alert_time(self.events[0][0], 60) <= cur_time < self.events[0][0]:
+            print(f"{self.events[0][1]} is happening in 1 hour!")
+
+    def find_alert_time(self, e_time, t):
+        if t == 60:
+            return datetime.datetime(e_time.year, e_time.month, e_time.day, e_time.hour - 1, e_time.minute)
+        else:
+            if (e_time.minute - t) < 0:
+                return datetime.datetime(e_time.year, e_time.month, e_time.day, e_time.hour - 1,
+                                         e_time.minute + 60 - t)
+            else:
+                return datetime.datetime(e_time.year, e_time.month, e_time.day, e_time.hour, e_time.minute - t)
+    
     def init_discussion(self):
         with open('/info.txt', 'r') as read_info:
             self._discussion_points = read_info.readlines()
-
+    
     def raise_discussion(self, t_message):
         """
         Checks how much time has passed since the last message, and returns something to say if it has been too long
@@ -231,3 +283,8 @@ class ChatBot(object):
 #     print(cb.user_msg)
 #     cb.is_spam(usr, msg6_t, msg6)
 #     print(cb.user_msg)
+# if __name__ == "__main__":
+#     c = ChatBot()
+#     c.register_events()
+#     c.event_alert()
+#     c.event_alert()
