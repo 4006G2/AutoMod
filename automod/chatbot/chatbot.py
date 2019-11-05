@@ -3,6 +3,7 @@ __version__ = "0.1p"
 
 import random
 import re
+import time
 from enum import Enum
 
 import csv
@@ -29,6 +30,7 @@ class ChatBot(object):
     greetings = ["Hi", "Hello", "Hey"]
     regex_greeting = "({0})(?:,? {1})?".format('|'.join(greetings), name)
     pattern_greeting = re.compile(regex_greeting)
+    events = []
 
     def __init__(self):
         super().__init__()
@@ -36,6 +38,9 @@ class ChatBot(object):
         self._server = None
         self._game = None
         self.events = []  # [(time, event), ...]
+        self._discussion_points = []
+        self.init_discussion()
+        self.user_msg = {}
 
     @property
     def server(self):
@@ -127,25 +132,27 @@ class ChatBot(object):
             return None
 
         tone = self.get_behaviour(message)
+        strikes = 'strikes'
+        level = 'level'
         if tone == MessageTone.NEGATIVE:
-            self._watch_list[user_id][0] += 1
+            self._watch_list[user_id][strikes] += 1
         elif tone == MessageTone.POSITIVE:
-            self._watch_list[user_id][0] -= 0.2
+            self._watch_list[user_id][strikes] -= 0.2
 
-        if self._watch_list[user_id]['strikes'] >= 3:
-            if self._watch_list[user_id]['level'] is None:
+        if self._watch_list[user_id][strikes] >= 3:
+            if self._watch_list[user_id][level] is None:
                 # self.warn_user(user)
-                self._watch_list[user_id]['level'] = WarningLevel.WARNING
-                self._watch_list[user_id]['strikes'] -= 3
+                self._watch_list[user_id][level] = WarningLevel.WARNING
+                self._watch_list[user_id][strikes] -= 3
                 return WarningLevel.WARNING
-            elif self._watch_list[user_id]['level'] == WarningLevel.WARNING:
+            elif self._watch_list[user_id][level] == WarningLevel.WARNING:
                 # self.mute_user(user)
-                self._watch_list[user_id]['level'] = WarningLevel.MUTE
-                self._watch_list[user_id]['strikes'] -= 1
+                self._watch_list[user_id][level] = WarningLevel.MUTE
+                self._watch_list[user_id][strikes] -= 1
                 return WarningLevel.MUTE
             else:
                 # self.ban_user(user)
-                self._watch_list[user_id][1] = WarningLevel.BAN
+                self._watch_list[user_id][level] = WarningLevel.BAN
                 return WarningLevel.BAN
         return None
 
@@ -195,10 +202,89 @@ class ChatBot(object):
                                          e_time.minute + 60 - t)
             else:
                 return datetime.datetime(e_time.year, e_time.month, e_time.day, e_time.hour, e_time.minute - t)
+    
+    def init_discussion(self):
+        with open('/info.txt', 'r') as read_info:
+            self._discussion_points = read_info.readlines()
+    
+    def raise_discussion(self, t_message):
+        """
+        Checks how much time has passed since the last message, and returns something to say if it has been too long
+        :param t_message the time of the last message (epoch seconds)
+        :return: a string to print or None
+        *Note: this function should be called with a variable assigned with the starting point before when an input is met
+        """
+        dt = time.time() - t_message
 
+        # TODO: DETECT IF THE LAST MESSAGE WAS FROM US! if so, return None
+        if dt >= 25:
+            return random.choice(self._discussion_points)
+        else:
+            return None
 
-if __name__ == "__main__":
-    c = ChatBot()
-    c.register_events()
-    c.event_alert()
-    c.event_alert()
+    def is_spam(self, user, msg_t, message):
+        spam = False
+        if user not in self.user_msg:  # check if user exists in dict
+            self.user_msg[user] = []
+        elif len(self.user_msg[user]) == 5:  # check if user has 5 messages saved
+            self.user_msg[user].pop(0)
+        self.user_msg[user].append((msg_t, message))
+        if len(self.user_msg[user]) >= 3:  # similarity check
+            if self.same_msg(self.user_msg[user]):
+                spam = True
+        if len(self.user_msg[user]) == 5:  # too many msg too soon
+            if self.too_many_msg(self.user_msg[user]):
+                spam = True
+        # print(spam)
+        return spam
+
+    def same_msg(self, msg_lst):
+        same = False
+        for i in range(len(msg_lst)-1):
+            if msg_lst[i][1] == msg_lst[i+1][1]:
+                same = True
+            else:
+                return False
+        return same
+
+    def too_many_msg(self, msg_lst):
+        t_interval = msg_lst[0][0] - msg_lst[len(msg_lst)-1][0]
+        if t_interval.seconds >= 10:
+            return True
+        else:
+            return False
+
+# testing
+# if __name__ == "__main__":
+#     import datetime
+#     cb = ChatBot()
+#     usr = 'user'
+#     msg1 = 'hi'
+#     msg1_t = datetime.datetime(2019, 11, 2, 17, 5, 22)
+#     msg2 = 'hello'
+#     msg2_t = datetime.datetime(2019, 11, 2, 17, 5, 23)
+#     msg3 = 'no'
+#     msg3_t = datetime.datetime(2019, 11, 2, 17, 5, 24)
+#     msg4 = 'way'
+#     msg4_t = datetime.datetime(2019, 11, 2, 17, 5, 25)
+#     msg5 = 'yes'
+#     msg5_t = datetime.datetime(2019, 11, 2, 17, 5, 31)
+#     msg6 = 'me'
+#     msg6_t = datetime.datetime(2019, 11, 2, 17, 5, 32)
+#     cb.is_spam(usr, msg1_t, msg1)
+#     print(cb.user_msg)
+#     cb.is_spam(usr, msg2_t, msg2)
+#     print(cb.user_msg)
+#     cb.is_spam(usr, msg3_t, msg3)
+#     print(cb.user_msg)
+#     cb.is_spam(usr, msg4_t, msg4)
+#     print(cb.user_msg)
+#     cb.is_spam(usr, msg5_t, msg5)
+#     print(cb.user_msg)
+#     cb.is_spam(usr, msg6_t, msg6)
+#     print(cb.user_msg)
+# if __name__ == "__main__":
+#     c = ChatBot()
+#     c.register_events()
+#     c.event_alert()
+#     c.event_alert()

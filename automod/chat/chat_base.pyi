@@ -11,11 +11,7 @@ class ChatBase(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def on_message_received(self, user_id: str, message: str) -> None:
-        ...
-
-    @abc.abstractmethod
-    def broadcast_message(self, message: str) -> None:
+    def broadcast_message(self, ch_name:str, message: str) -> None:
         ...
 
     @abc.abstractmethod
