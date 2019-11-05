@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Pattern, List, Dict, Union, Optional
+from typing import Pattern, List, Dict, Union, Optional, Any
 import datetime
 
 from automod.chat import ChatBase
@@ -64,16 +64,16 @@ class ChatBot(object):
     def get_behaviour(message: str) -> MessageTone:
         ...
 
-    def monitor_behaviour(self, user_id: str, message: str):
+    def monitor_behaviour(self, user_name: str, message: Any):
         ...
 
     def register_events(self) -> None:
         ...
-      
+
     def init_discussion(self) -> None:
         ...
 
-    def raise_discussion(self, t_message: int) -> Optional[str]:
+    def raise_discussion(self, last_message: Any) -> Optional[str]:
         ...
 
     def is_spam(self, user: str, msg_t: datetime, message: str) -> bool:
@@ -83,3 +83,10 @@ class ChatBot(object):
         ...
 
     def too_many_msg(self, msg_lst: list) -> bool:
+        ...
+
+    def event_alert(self):
+        ...
+
+    def find_alert_time(self, e_time, t):
+        ...

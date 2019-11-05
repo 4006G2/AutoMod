@@ -5,6 +5,7 @@ import random
 import re
 import time
 from enum import Enum
+import os
 
 import csv
 import requests
@@ -38,8 +39,9 @@ class ChatBot(object):
         self._server = None
         self._game = None
         self.events = []  # [(time, event), ...]
+        self.register_events()
         self._discussion_points = []
-        self.init_discussion()
+        # self.init_discussion()
         self.user_msg = {}
 
     @property
@@ -121,6 +123,9 @@ class ChatBot(object):
         else:
             return MessageTone.NEUTRAL
 
+    def report_user(self, user_id):
+        self._watch_list[user_id] = {'strikes': 0, 'level': None}
+
     def monitor_behaviour(self, user_id, message):
         """
         :param user_id: user who sent the message
@@ -129,7 +134,7 @@ class ChatBot(object):
         """
         #  we don't care about them if they haven't been reported.
         if user_id not in self._watch_list:
-            return None
+            return -1
 
         tone = self.get_behaviour(message)
         strikes = 'strikes'
@@ -154,15 +159,15 @@ class ChatBot(object):
                 # self.ban_user(user)
                 self._watch_list[user_id][level] = WarningLevel.BAN
                 return WarningLevel.BAN
-        return None
+        return -1
 
     # this function should read a text file containing the stream events and the time of it happening
     def register_events(self):
         """
         :rtype: None
         """
-        # file_name = input("Enter file name: ")
-        with open('events.txt') as csvfile:
+        file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'events.txt')
+        with open(file) as csvfile:
             data = csv.reader(csvfile)
             for row in data:
                 time_in = row[0]
@@ -179,19 +184,21 @@ class ChatBot(object):
     # 1 hour, 30 mins, 15 mins and 5 mins
     def event_alert(self):
         """
-        :rtype: None
+        :rtype: str
         """
         # if current time > event time - 1 hour, 30 mins, 15 mins or 5 mins --> alert chat
         cur_time = datetime.datetime.today()
+        alert = ''
         if self.find_alert_time(self.events[0][0], 5) <= cur_time < self.events[0][0]:
-            print(f"{self.events[0][1]} is happening in 5 minutes!")
+            alert = f"{self.events[0][1]} is happening in 5 minutes!"
             self.events.pop(0)
         elif self.find_alert_time(self.events[0][0], 15) <= cur_time < self.events[0][0]:
-            print(f"{self.events[0][1]} is happening in 15 minutes!")
+            alert = f"{self.events[0][1]} is happening in 15 minutes!"
         elif self.find_alert_time(self.events[0][0], 30) <= cur_time < self.events[0][0]:
-            print(f"{self.events[0][1]} is happening in 30 minutes!")
+            alert = f"{self.events[0][1]} is happening in 30 minutes!"
         elif self.find_alert_time(self.events[0][0], 60) <= cur_time < self.events[0][0]:
-            print(f"{self.events[0][1]} is happening in 1 hour!")
+            alert = f"{self.events[0][1]} is happening in 1 hour!"
+        return alert
 
     def find_alert_time(self, e_time, t):
         if t == 60:
@@ -202,25 +209,25 @@ class ChatBot(object):
                                          e_time.minute + 60 - t)
             else:
                 return datetime.datetime(e_time.year, e_time.month, e_time.day, e_time.hour, e_time.minute - t)
-    
+
     def init_discussion(self):
         with open('/info.txt', 'r') as read_info:
             self._discussion_points = read_info.readlines()
-    
-    def raise_discussion(self, t_message):
+
+    def raise_discussion(self, last_message):
         """
         Checks how much time has passed since the last message, and returns something to say if it has been too long
-        :param t_message the time of the last message (epoch seconds)
+        :param last_message the time of the last message (epoch seconds)
         :return: a string to print or None
         *Note: this function should be called with a variable assigned with the starting point before when an input is met
         """
-        dt = time.time() - t_message
+        downtime = time.time() - last_message.created_at.timestamp()
+        sender = last_message.author.split('#')[0]
 
-        # TODO: DETECT IF THE LAST MESSAGE WAS FROM US! if so, return None
-        if dt >= 25:
-            return random.choice(self._discussion_points)
+        if sender == "ModeratorBot" or downtime < 25:
+            return ''
         else:
-            return None
+            return random.choice(self._discussion_points)
 
     def is_spam(self, user, msg_t, message):
         spam = False
@@ -283,6 +290,7 @@ class ChatBot(object):
 #     print(cb.user_msg)
 #     cb.is_spam(usr, msg6_t, msg6)
 #     print(cb.user_msg)
+#
 # if __name__ == "__main__":
 #     c = ChatBot()
 #     c.register_events()
