@@ -10,6 +10,7 @@ class ChatDiscord(ChatBase):
         self.client = discord.Client()
         self.client.event(self.on_message)
         self.guilds = self.client.guilds
+        self.muted = {}
 
     async def find_guild_id(self, guild_name):
         guilds = await self.client.fetch_guilds(limit=10).flatten()
@@ -44,7 +45,6 @@ class ChatDiscord(ChatBase):
         ch_id = self.find_channel_id(ch_name)
         ch = self.client.get_channel(ch_id)
         await ch.send(message)
-        await self.client.close()
 
     async def send_message_to(self, user_name, message):
         user_id = self.find_user_id(user_name)
@@ -61,7 +61,6 @@ class ChatDiscord(ChatBase):
         message = f"{user_name} have been banned for {reason}!"
         await guild.ban(user, reason=reason)
         await self.broadcast_message('general', message)
-        await self.client.close()
 
     async def find_banned_user(self, user_name):
         guild_id = self.find_guild_id('AutoModTesting')
@@ -78,7 +77,6 @@ class ChatDiscord(ChatBase):
         banned = await guild.bans()
         for (reason, user) in banned:
             print(reason, user)
-        await self.client.close()
 
     async def unban(self, user_name, reason=None):
         user = await self.find_banned_user(user_name)
@@ -87,53 +85,66 @@ class ChatDiscord(ChatBase):
         message = f"{user_name} have been unbanned for {reason}!"
         await guild.unban(user)
         await self.broadcast_message('general', message)
-        await self.client.close()
 
-    async def send_mute_req(self, user_name, ch_name, reason=None):
+    async def send_mute_req(self, user_name, reason=None):
         user_id = self.find_user_id(user_name)
         user = self.client.get_user(user_id)
-        ch_id = self.find_channel_id(ch_name)
-        ch = self.client.get_channel(ch_id)
         if reason is None:
             reason = "Cause I can."
         message = f"{user_name} have been muted for {reason}!"
-        await ch.set_permissions(user, read_messages=True, send_messages=False)
+        for ch in self.client.get_all_channels():
+            await ch.set_permissions(user, read_messages=True, send_messages=False)
+        self.muted[user_name] = reason
         await self.broadcast_message('general', message)
-        await self.client.close()
 
-    async def unmute(self, user_name, ch_name, reason=None):
+    async def unmute(self, user_name):
         user_id = self.find_user_id(user_name)
         user = self.client.get_user(user_id)
-        ch_id = self.find_channel_id(ch_name)
-        ch = self.client.get_channel(ch_id)
-        message = f"{user_name} have been unmuted for {reason}!"
-        await ch.set_permissions(user, overwrite=None)
-        await self.broadcast_message('general', message)
-        await self.client.close()
+        for ch in self.client.get_all_channels():
+            await ch.set_permissions(user, overwrite=None)
+
+    async def unmute_all(self, reason=None):
+        if len(self.muted) != 0:
+            for user in list(self.muted):
+                await self.unmute(user)
+                self.muted.pop(user, None)
+                message = f"{user} have been unmuted for {reason}!"
+                await self.broadcast_message('general', message)
 
     # client.event
     async def on_message(self, message):
         user_id = message.author.id
-        username = message.author.split('#')[0]
+        username = str(message.author).split('#')[0]
         if user_id != self.find_user_id('ModeratorBot'):  # check if sender is the bot
-            if self.chat_bot.is_spam(user_id, message.time, message.content):  # spam check
-                self.send_mute_req(username, "Spamming")
-            action = await self.chat_bot.monitor_behaviour(user_id, message)
-            if action == 0:
-                self.send_message_to(username, 'Please stop sending toxic messages!')
-            elif action == 1:
-                self.send_mute_req(username, "Toxic behaviour.")
-            elif action == 2:
-                self.send_ban_req(username, "Toxic behaviour.")
+            if self.chat_bot.is_spam(user_id, message.created_at, message.content):  # spam check
+                await self.send_mute_req(username,  str(message.channel), reason="Spamming")
+            else:
+                action = self.chat_bot.monitor_behaviour(user_id, message.content)  # behaviour check
+                if action == 0:
+                    await self.send_message_to(username, 'Please stop sending toxic messages!')
+                elif action == 1:
+                    await self.send_mute_req(username, reason="toxic behaviour")
+                elif action == 2:
+                    await self.send_ban_req(username, reason="toxic behaviour")
 
     async def tasks(self):
         await self.client.wait_until_ready()
-        while not self.client.is_closed():
+        for member in self.client.get_all_members():  # report everyone
+            username = str(member).split('#')[0]
+            if username != "ModeratorBot":
+                user_id = self.find_user_id(username)
+                self.chat_bot.report_user(user_id)
+
+        # await self.send_mute_req('arnhem117')
+        # await self.unmute('arnhem117')
+
+        while not self.client.is_closed():  # main loop
             last_msg = await self.get_last_msg('general')
-            prompt = await self.chat_bot.raise_discussion(last_msg)
+            prompt = self.chat_bot.raise_discussion(last_msg)
             if len(prompt) != 0:
-                self.broadcast_message('general', prompt)
-            alert = await self.chat_bot.event_alert()
+                await self.broadcast_message('general', prompt)
+            alert = self.chat_bot.event_alert()
             if len(alert) != 0:
-                self.broadcast_message('general', alert)
+                await self.broadcast_message('general', alert)
             await asyncio.sleep(60)
+            await self.unmute_all(reason='mute expired')

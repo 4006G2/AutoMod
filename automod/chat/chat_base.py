@@ -26,7 +26,6 @@ class ChatBase(abc.ABC):
     def send_mute_req(self, user_id, reason=None):
         """
         sends a request to the server to mute the user
-
         :param user_id: the user_id to mute
         :param reason: reason for mute
         :return: if the user was successfully muted
