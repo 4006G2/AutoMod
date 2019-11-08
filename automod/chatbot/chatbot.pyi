@@ -90,3 +90,6 @@ class ChatBot(object):
 
     def find_alert_time(self, e_time, t):
         ...
+
+    def report_user(self, user_id):
+        ...

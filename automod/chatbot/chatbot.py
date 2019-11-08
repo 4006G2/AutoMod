@@ -41,7 +41,7 @@ class ChatBot(object):
         self.events = []  # [(time, event), ...]
         self.register_events()
         self._discussion_points = []
-        # self.init_discussion()
+        self.init_discussion()
         self.user_msg = {}
 
     @property
@@ -135,7 +135,6 @@ class ChatBot(object):
         #  we don't care about them if they haven't been reported.
         if user_id not in self._watch_list:
             return -1
-
         tone = self.get_behaviour(message)
         strikes = 'strikes'
         level = 'level'
@@ -149,16 +148,16 @@ class ChatBot(object):
                 # self.warn_user(user)
                 self._watch_list[user_id][level] = WarningLevel.WARNING
                 self._watch_list[user_id][strikes] -= 3
-                return WarningLevel.WARNING
+                return WarningLevel.WARNING.value
             elif self._watch_list[user_id][level] == WarningLevel.WARNING:
                 # self.mute_user(user)
                 self._watch_list[user_id][level] = WarningLevel.MUTE
                 self._watch_list[user_id][strikes] -= 1
-                return WarningLevel.MUTE
+                return WarningLevel.MUTE.value
             else:
                 # self.ban_user(user)
                 self._watch_list[user_id][level] = WarningLevel.BAN
-                return WarningLevel.BAN
+                return WarningLevel.BAN.value
         return -1
 
     # this function should read a text file containing the stream events and the time of it happening
@@ -211,7 +210,8 @@ class ChatBot(object):
                 return datetime.datetime(e_time.year, e_time.month, e_time.day, e_time.hour, e_time.minute - t)
 
     def init_discussion(self):
-        with open('/info.txt', 'r') as read_info:
+        file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'info.txt')
+        with open(file, 'r') as read_info:
             self._discussion_points = read_info.readlines()
 
     def raise_discussion(self, last_message):
@@ -222,9 +222,10 @@ class ChatBot(object):
         *Note: this function should be called with a variable assigned with the starting point before when an input is met
         """
         downtime = time.time() - last_message.created_at.timestamp()
-        sender = last_message.author.split('#')[0]
+        sender = str(last_message.author)
+        sender_name = sender.split('#')[0]
 
-        if sender == "ModeratorBot" or downtime < 25:
+        if sender_name == "ModeratorBot" or downtime < 25:
             return ''
         else:
             return random.choice(self._discussion_points)
@@ -242,7 +243,6 @@ class ChatBot(object):
         if len(self.user_msg[user]) == 5:  # too many msg too soon
             if self.too_many_msg(self.user_msg[user]):
                 spam = True
-        # print(spam)
         return spam
 
     def same_msg(self, msg_lst):
@@ -291,8 +291,19 @@ class ChatBot(object):
 #     cb.is_spam(usr, msg6_t, msg6)
 #     print(cb.user_msg)
 #
+#
 # if __name__ == "__main__":
 #     c = ChatBot()
 #     c.register_events()
 #     c.event_alert()
 #     c.event_alert()
+#
+#
+# if __name__ == "__main__":
+#     c = ChatBot()
+#     message = "Hi"
+#     print(c.get_behaviour(message))
+#     message = "very bad"
+#     print(c.get_behaviour(message))
+#     message = "very good"
+#     print(c.get_behaviour(message))
