@@ -1,4 +1,4 @@
-__author__ = "Benedict Thompson"
+__author__ = "Benedict Thompson", "Hon Lam Lee"
 __version__ = "0.1p"
 
 import automod.chatbot.chatbot as cb
@@ -10,9 +10,10 @@ file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'keys.txt')
 with open(file) as csvfile:
     data = csv.reader(csvfile)
     for row in data:
-        line = row[0].split(':')
-        if line[0] == "discord":
-            Discord_Token = line[1]
+        if row != []:
+            line = row[0].split(':')
+            if line[0] == "discord":
+                Discord_Token = line[1]
 
 
 def run():

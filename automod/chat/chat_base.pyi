@@ -23,5 +23,5 @@ class ChatBase(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def send_mute_req(self, user_id: str, ch_name: str, reason: str = None) -> bool:
+    def send_mute_req(self, user_id: str, reason: str = None) -> bool:
         ...

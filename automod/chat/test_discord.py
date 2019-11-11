@@ -8,7 +8,6 @@ with open('keys.json') as keys:
     TOKEN = key_dict['discord']
 
 
-
 class DiscordTests(unittest.TestCase):
 
     def __init__(self, methodName: str = "runTest") -> None:
