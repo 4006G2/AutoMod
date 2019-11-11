@@ -1,9 +1,8 @@
-__author__ = "Benedict Thompson"
+__author__ = "Benedict Thompson", "Hon Lam Lee"
 __version__ = "0.1p"
 
 import random
 import re
-import time
 from enum import Enum
 import os
 
@@ -115,16 +114,12 @@ class ChatBot(object):
         req = requests.post(url="http://text-processing.com/api/sentiment/", data="text={0}".format(message))
         response = req.json()
         tone_value = response['label']
-
         if tone_value == 'neg':
             return MessageTone.NEGATIVE
         elif tone_value == 'pos':
             return MessageTone.POSITIVE
         else:
             return MessageTone.NEUTRAL
-
-    def report_user(self, user_id):
-        self._watch_list[user_id] = {'strikes': 0, 'level': None}
 
     def monitor_behaviour(self, user_id, message):
         """
@@ -138,29 +133,29 @@ class ChatBot(object):
         tone = self.get_behaviour(message)
         strikes = 'strikes'
         level = 'level'
+        #  add or subtract strikes
         if tone == MessageTone.NEGATIVE:
             self._watch_list[user_id][strikes] += 1
         elif tone == MessageTone.POSITIVE:
             self._watch_list[user_id][strikes] -= 0.2
-
+        #  check if any actions need to take place
         if self._watch_list[user_id][strikes] >= 3:
             if self._watch_list[user_id][level] is None:
-                # self.warn_user(user)
                 self._watch_list[user_id][level] = WarningLevel.WARNING
                 self._watch_list[user_id][strikes] -= 3
                 return WarningLevel.WARNING.value
             elif self._watch_list[user_id][level] == WarningLevel.WARNING:
-                # self.mute_user(user)
                 self._watch_list[user_id][level] = WarningLevel.MUTE
                 self._watch_list[user_id][strikes] -= 1
                 return WarningLevel.MUTE.value
             else:
-                # self.ban_user(user)
                 self._watch_list[user_id][level] = WarningLevel.BAN
                 return WarningLevel.BAN.value
         return -1
 
-    # this function should read a text file containing the stream events and the time of it happening
+    def report_user(self, user_id):
+        self._watch_list[user_id] = {'strikes': 0, 'level': None}
+
     def register_events(self):
         """
         :rtype: None
@@ -179,8 +174,6 @@ class ChatBot(object):
             # self.events = [(e[0], e[1]) for e in data]
             self.events.sort(key=lambda t: t[0])
 
-    # this function should check the system time and alert chat when an event is happening in
-    # 1 hour, 30 mins, 15 mins and 5 mins
     def event_alert(self):
         """
         :rtype: str
@@ -201,11 +194,18 @@ class ChatBot(object):
 
     def find_alert_time(self, e_time, t):
         if t == 60:
-            return datetime.datetime(e_time.year, e_time.month, e_time.day, e_time.hour - 1, e_time.minute)
+            if (e_time.hour - 1) < 0:
+                return datetime.datetime(e_time.year, e_time.month, e_time.day - 1, e_time.hour + 24 - 1, e_time.minute)
+            else:
+                return datetime.datetime(e_time.year, e_time.month, e_time.day, e_time.hour - 1, e_time.minute)
         else:
             if (e_time.minute - t) < 0:
-                return datetime.datetime(e_time.year, e_time.month, e_time.day, e_time.hour - 1,
-                                         e_time.minute + 60 - t)
+                if (e_time.hour - 1) < 0:
+                    return datetime.datetime(e_time.year, e_time.month, e_time.day - 1, e_time.hour + 24 - 1,
+                                             e_time.minute + 60 - t)
+                else:
+                    return datetime.datetime(e_time.year, e_time.month, e_time.day, e_time.hour - 1,
+                                             e_time.minute + 60 - t)
             else:
                 return datetime.datetime(e_time.year, e_time.month, e_time.day, e_time.hour, e_time.minute - t)
 
@@ -247,7 +247,7 @@ class ChatBot(object):
 
     def same_msg(self, msg_lst):
         same = False
-        for i in range(len(msg_lst)-1):
+        for i in range(len(msg_lst)-3, len(msg_lst)-1):
             if msg_lst[i][1] == msg_lst[i+1][1]:
                 same = True
             else:
@@ -255,11 +255,8 @@ class ChatBot(object):
         return same
 
     def too_many_msg(self, msg_lst):
-        t_interval = msg_lst[0][0] - msg_lst[len(msg_lst)-1][0]
-        if t_interval.seconds >= 10:
-            return True
-        else:
-            return False
+        t_interval = msg_lst[len(msg_lst)-1][0] - msg_lst[0][0]
+        return t_interval.seconds <= 10
 
 # testing
 # if __name__ == "__main__":
