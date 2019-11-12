@@ -19,7 +19,7 @@ class ChatBase(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def send_ban_req(self, user_id: str, reason: str = None) -> bool:
+    def send_ban_req(self, user_id: str, guild_name, reason: str = None) -> bool:
         ...
 
     @abc.abstractmethod

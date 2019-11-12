@@ -10,12 +10,17 @@ class ChatDiscord(ChatBase):
         self.client = discord.Client()
         self.client.event(self.on_ready)
         self.client.event(self.on_message)
-        self.guilds = self.client.guilds
+        self.guilds = []
         self.muted = {}
 
-    async def find_guild_id(self, guild_name):
+    async def init_guilds(self):
         guilds = await self.client.fetch_guilds(limit=10).flatten()
         for guild in guilds:
+            if guild not in self.guilds:
+                self.guilds.append(guild)
+
+    async def find_guild_id(self, guild_name):
+        for guild in self.guilds:
             if guild.name == guild_name:
                 return guild.id
         return None
@@ -52,10 +57,10 @@ class ChatDiscord(ChatBase):
         async for message in ch.history(limit=1):
             return message
 
-    async def send_ban_req(self, user_name, reason=None):
+    async def send_ban_req(self, user_name, guild_name, reason=None):
         user_id = self.find_user_id(user_name)
         user = self.client.get_user(user_id)
-        guild_id = await self.find_guild_id('AutoModTesting')
+        guild_id = await self.find_guild_id(guild_name)
         guild = self.client.get_guild(guild_id)
         if reason is None:
             reason = "You are unworthy."
@@ -63,8 +68,8 @@ class ChatDiscord(ChatBase):
         await guild.ban(user, reason=reason)
         await self.broadcast_message('general', message)
 
-    async def find_banned_user(self, user_name):
-        guild_id = await self.find_guild_id('AutoModTesting')
+    async def find_banned_user(self, user_name, guild_name):
+        guild_id = await self.find_guild_id(guild_name)
         guild = self.client.get_guild(guild_id)
         banned = await guild.bans()
         for (reason, user) in banned:
@@ -72,16 +77,16 @@ class ChatDiscord(ChatBase):
                 return user
         return None
 
-    async def print_banned(self):
-        guild_id = self.find_guild_id('AutoModTesting')
+    async def print_banned(self, guild_name):
+        guild_id = self.find_guild_id(guild_name)
         guild = self.client.get_guild(guild_id)
         banned = await guild.bans()
         for (reason, user) in banned:
             print(reason, user)
 
-    async def unban(self, user_name, reason=None):
-        user = await self.find_banned_user(user_name)
-        guild_id = await self.find_guild_id('AutoModTesting')
+    async def unban(self, user_name, guild_name, reason=None):
+        user = await self.find_banned_user(user_name, guild_name)
+        guild_id = await self.find_guild_id(guild_name)
         guild = self.client.get_guild(guild_id)
         message = f"{user_name} have been unbanned for {reason}!"
         await guild.unban(user)
@@ -132,6 +137,7 @@ class ChatDiscord(ChatBase):
 
     # client.event
     async def on_ready(self):
+        await self.init_guilds()
         await self.broadcast_message('general', 'ModeratorBot is online!')
 
     # client.event
@@ -148,7 +154,7 @@ class ChatDiscord(ChatBase):
                 elif action == 1:
                     await self.send_mute_req(username, reason="toxic behaviour")
                 elif action == 2:
-                    await self.send_ban_req(username, reason="toxic behaviour")
+                    await self.send_ban_req(username, str(message.guild), reason="toxic behaviour")
 
     async def tasks(self):
         await self.client.wait_until_ready()

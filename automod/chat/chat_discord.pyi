@@ -14,6 +14,9 @@ class ChatDiscord(ChatBase):
         self.guilds: List[Guild] = ...
         self.muted: dict = {}
 
+    async def init_guilds(self) -> None:
+        ...
+
     async def find_guild_id(self, guild_name: str) -> int:
         ...
 
@@ -35,16 +38,16 @@ class ChatDiscord(ChatBase):
     async def get_last_msg(self, ch_name: str) -> Any:
         ...
 
-    async def send_ban_req(self, user_name: str, reason: str = None) -> None:
+    async def send_ban_req(self, user_name: str, guild_name: str, reason: str = None) -> None:
         ...
 
-    async def find_banned_user(self, name: str) -> Any:
+    async def find_banned_user(self, user_name: str, guild_name: str) -> Any:
         ...
 
-    async def print_banned(self) -> None:
+    async def print_banned(self, guild_name: str) -> None:
         ...
 
-    async def unban(self, user_name: str, reason: str = None) -> None:
+    async def unban(self, user_name: str, guild_name: str, reason: str = None) -> None:
         ...
 
     async def send_mute_req(self, user_name: str, reason: str = None) -> None:
