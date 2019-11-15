@@ -2,13 +2,12 @@ __author__ = "Benedict Thompson"
 __version__ = "0.1p"
 
 import abc
-from typing import Dict
 
 
 class GameBase(abc.ABC):
-    @abc.abstractmethod
     @property
-    def commands(self) -> Dict[str, Dict[str, bool]]:
+    @abc.abstractmethod
+    def commands(self):
         """
         get the commands allowed by the game API
 
@@ -17,7 +16,7 @@ class GameBase(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def send(self, command: str, **properties) -> str:
+    def send(self, command, **properties):
         """
         Sends a request to the game's API based on the passed command
 
@@ -27,9 +26,9 @@ class GameBase(abc.ABC):
         """
         pass
 
-    @abc.abstractmethod
     @property
-    def name(self) -> str:
+    @abc.abstractmethod
+    def name(self):
         """
         :return: the name for the game/api
         """
